@@ -2,9 +2,12 @@
   "name": "flyght",
   "version": "1.0.3",
   "description": "Flyght is the vanilla JS Single Page Application Library",
-  "main": "flyght.js",
+  "source": "./src/index.js",
+  "main": "./dist/flyght.js",
   "scripts": {
-    "test": "test.js"
+    "watch": "parcel watch",
+    "build": "parcel build",
+    "test": "mocha test.js"
   },
   "repository": {
     "type": "git",
@@ -15,6 +18,15 @@
     "singlepageapplication",
     "spa"
   ],
+  "devDependencies": {
+    "@babel/core": "*",
+    "@babel/plugin-transform-runtime": "*",
+    "@babel/preset-env": "*",
+    "@babel/register": "^7.18.9",
+    "chai": "*",
+    "mocha": "*",
+    "parcel": "*"
+  },
   "author": "Ajith Krish <mailingtoajith@gmail.com>",
   "license": "ISC",
   "bugs": {
