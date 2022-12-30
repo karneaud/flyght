@@ -3,4 +3,5 @@ module.exports = {
         '@babel/register',
         'regenerator-runtime/runtime',
     ],
+    recursive: true
 };
