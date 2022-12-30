@@ -1,46 +1,65 @@
 const Flyght = class {
-    #config
+    #config = {}
     #defaultConfig = {}
-    #hasPageList = null
     #element = null
     constructor(config) {
-        this.$ = document
         this.init(config)
+        this.register()
+    }
+
+    init(config) {
+        this.#config = Object.assign({},this.#defaultConfig,config)
         window.addEventListener("hashchange", this.hashListener.bind(this), false)
 		window.onload = this.hashListener.bind(this)
     }
 
-    init(config) {
-        this.#config = Object.merge({},this.#defaultConfig,config)
-        this.register()
-    }
-
     register(){
+        this.$ = document
         this.#element = this.$.getElementById(this.#config.idElement)
-        let urlConfiguration = this.#config.urlConfiguration ?? {}, $links = this.$.querySelectorAll('a[data-flyght]')
+        this.#config.urlConfiguration = this.#config.urlConfiguration ?? [], 
+            $links = this.$.querySelectorAll('a[data-flyght]')
 		if($links) $links.forEach(($el,key,$parent) =>{
-            urlConfiguration[$el.name ?? $el.id] = { hash: $el.href, type: 'GET' }
+            this.#config.urlConfiguration.push({ hash: $el.hash ?? $el.href, url: $el.href, type: 'GET' })
         })
     }
 
-    hashListener() {
-		for ( let key in this.#hashPageList) {
-			if (window.location.hash === this.#hashPageList[key].hash) {
-                let { url, method, beforeFetch, options, afterFetch } = this.#hasPageList[key]
-				if(typeof beforeFetch == 'Function' && !beforeFetch() ) return false
-				
-                let response  = this.#fetchFetch(url, { method, ...options })
-                response  = (typeof afterFetch == 'Function') ? afterFetch(response) : response.text()
-                this.updateContent(response)
-                break;
-			} else {
-				document.getElementById(Flyght.idElement).innerHTML = "";
-			}
-		}
+    async #fetchFetch(url, opts) {
+        let response = null
+        try {
+            response = await fetch(url, Object.assign({},{ method: 'GET', headers: {
+                'Content-Type':'text/html',
+                'Accept':'text/html'
+            } }, opts))
+
+        } catch(e) {
+            throw e
+        }
+        return response
     }
 
-    updateContent(content) {
-        this.$.getElementById(this.#config.idElement).innerHTML = content
+    hashListener() {
+        try {
+            let page = this.#config.hashPageList.filter((page) => page.hash == window.location.hash || page.url == window.location.href),
+            { url, hash, method, beforeFetch, options, afterFetch } = page
+            if(typeof beforeFetch == 'Function' && !beforeFetch() ) return false
+            
+            let response  = this.#fetchFetch(url, { method, ...options })
+            response = (typeof afterFetch == 'Function') ? afterFetch(response) : response.text()
+            if(!response) throw 'No text value returned'
+
+            this.#updateContent(response)
+        } catch(e) {
+            if(this.#config.errorHandler) this.#config.errorHandler(e)
+            else this.#errorHandler(e)
+        }
+    }
+
+    #errorHandler(e) {
+        console.error(e)
+    }
+
+    #updateContent(content) {
+        this.#element.innerHTML = content
     }
 }
 
