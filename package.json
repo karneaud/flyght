@@ -7,7 +7,7 @@
   "scripts": {
     "watch": "parcel watch",
     "build": "parcel build",
-    "test": "mocha test.js"
+    "test": "mocha --config .mocharc.js test.js"
   },
   "repository": {
     "type": "git",
@@ -25,7 +25,8 @@
     "@babel/register": "^7.18.9",
     "chai": "*",
     "mocha": "*",
-    "parcel": "*"
+    "parcel": "*",
+    "sinon": "^15.0.1"
   },
   "author": "Ajith Krish <mailingtoajith@gmail.com>",
   "license": "ISC",
