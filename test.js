@@ -4,10 +4,11 @@ import sinon from 'sinon'
 import { JSDOM } from 'jsdom'
 import Flyght from './src/index.js'
 const defaultConfig = { foo: "bar", hasPageList: [], idElement: "flyghtContent", urlConfiguration: null },
-    document = new JSDOM('<html><body><div id="flyghtContent"></div><a href="/test.html" name="test" data-flyght></a><a href="/test2.html" name="test2" data-flyght></a></body></html>')
-global.document = document
-global.window =document.window
-global.location = window.location
+    doc = new JSDOM('<html><body><div id="flyghtContent"></div><a href="/test.html" name="test" data-flyght></a><a href="/test2.html" name="test2" data-flyght></a></body></html>')
+global.window = doc.window
+global.document = doc.window.document
+global.location = doc.window.location
+
 should()
         
 describe('Flyght class tests',() => {
@@ -33,16 +34,24 @@ describe("flyght methods and properties",()=>{
         let flyght = new Flyght(defaultConfig)
         assert.property(flyght,'init')
         assert.property(flyght,'register')
+        expect(flyght).to.not.have.property('fetchFetch')
     })
 })
 
-describe('Flyght functions', ()=>{
-    afterEach(()=> sinon.restore())
-
-    it('should fire hashListener method', () =>{
+describe('Test Flyght functions', ()=>{
+    let spy = null
+    before(()=> {
+        spy = sinon.spy(Flyght.prototype,'hashListener')
         let flyght = new Flyght(defaultConfig)
-        sinon.mock(flyght).expects('hashListener').atLeast(2)
         window.onload()
-        location.hash = 'too'
+        window.location.hash = '#hash'
+        window.document.querySelector('a[data-flyght]').click()
+    })
+
+    after(()=> sinon.restore())
+
+    it('should fire hashListener method', () => {
+        expect(spy.callCount).equal(3)
+        expect(window.location.hash).equal('#test')
     })
 })
