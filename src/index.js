@@ -9,8 +9,9 @@ const Flyght = class {
 
     init(config) {
         this.#config = Object.assign({},this.#defaultConfig,config)
-        window.addEventListener("hashchange", this.hashListener.bind(this), false)
-		window.onload = this.hashListener.bind(this)
+        let func = this.hashListener.bind(this)
+        window.addEventListener('hashchange',func, false)
+		window.onload = func
     }
 
     register(){
@@ -18,9 +19,16 @@ const Flyght = class {
         this.#element = this.$.getElementById(this.#config.idElement)
         this.#config.urlConfiguration = this.#config.urlConfiguration ?? [] 
         let $links = this.$.querySelectorAll('a[data-flyght]')
-		if($links) $links.forEach(($el,key,$parent) =>{
-            this.#config.urlConfiguration.push({ hash: $el.hash ?? $el.href, url: $el.href, type: 'GET' })
+		if($links) $links.forEach(($el,key,$parent) => {
+            $el.addEventListener('click', this.linkClickListener, false)
+            this.#config.urlConfiguration.push({ hash: $el.hash || $el.name || $el.href, url: $el.href, type: 'GET' })
         })
+    }
+
+    linkClickListener(e) {
+        e.stopPropagation()
+        e.preventDefault()
+        window.location.hash = e.target.hash || e.target.name || e.target.href
     }
 
     get config() {
