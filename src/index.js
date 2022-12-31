@@ -14,13 +14,17 @@ const Flyght = class {
     }
 
     register(){
-        this.$ = document
+        this.$ = window.document
         this.#element = this.$.getElementById(this.#config.idElement)
-        this.#config.urlConfiguration = this.#config.urlConfiguration ?? [], 
-            $links = this.$.querySelectorAll('a[data-flyght]')
+        this.#config.urlConfiguration = this.#config.urlConfiguration ?? [] 
+        let $links = this.$.querySelectorAll('a[data-flyght]')
 		if($links) $links.forEach(($el,key,$parent) =>{
             this.#config.urlConfiguration.push({ hash: $el.hash ?? $el.href, url: $el.href, type: 'GET' })
         })
+    }
+
+    get config() {
+        return this.#config
     }
 
     async #fetchFetch(url, opts) {
@@ -39,12 +43,13 @@ const Flyght = class {
 
     hashListener() {
         try {
-            let page = this.#config.hashPageList.filter((page) => page.hash == window.location.hash || page.url == window.location.href),
-            { url, hash, method, beforeFetch, options, afterFetch } = page
-            if(typeof beforeFetch == 'Function' && !beforeFetch() ) return false
+            let page = this.#config.urlConfiguration.filter((page) => page.hash == window.location.hash || page.url == window.location.href),
+            { beforeFetch } = page
+            if(!url || (typeof beforeFetch === 'function' && !(page = beforeFetch(page))) ) return false
             
-            let response  = this.#fetchFetch(url, { method, ...options })
-            response = (typeof afterFetch == 'Function') ? afterFetch(response) : response.text()
+            let { url, hash, method, options, afterFetch } = page,
+            response  = this.#fetchFetch(url, { method, ...options })
+            response = (typeof afterFetch === 'function') ? afterFetch(response) : response.text()
             if(!response) throw 'No text value returned'
 
             this.#updateContent(response)
