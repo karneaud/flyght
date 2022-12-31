@@ -24,6 +24,7 @@
     "@babel/preset-env": "*",
     "@babel/register": "^7.18.9",
     "chai": "*",
+    "jsdom": "^20.0.3",
     "mocha": "*",
     "parcel": "*",
     "sinon": "^15.0.1"
