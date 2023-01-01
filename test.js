@@ -39,19 +39,39 @@ describe("flyght methods and properties",()=>{
 })
 
 describe('Test Flyght content', ()=> {
-    before(() =>{
-        fetch = () => 
-            Promise.resolve(
+    fetch = sinon.fake.resolves(Promise.resolve(
                 { text: () => Promise.resolve('<div class="test">Test</div>') }
-            )
-        let flyght = new Flyght(defaultConfig)
-        window.document.querySelector('a[data-flyght]').click()
-    })
+            ))
+
+            
 
     it('should load content', function(done){
+        let flyght = new Flyght(defaultConfig)
+        window.document.querySelector('a[data-flyght]').click()
         this.timeout(1000)
         setTimeout(() => {
             expect(window.document.querySelector('.test').textContent).equal('Test' )
+            done()
+        },300)
+    })
+
+    it('should call hooks',function(done){
+        let afterFetch = sinon.fake.resolves('<div class="test">After Fetch</div>'), 
+            beforeFetch = sinon.fake((page) => Object.assign({}, page,{ method: "PATCH" }) ), 
+            flyght = new Flyght(Object.assign({}, defaultConfig,{ urlConfiguration:[
+                {
+                    beforeFetch,
+                    afterFetch,
+                    url: "/dummy.html",
+                    hash: "#dummy"
+                }
+        ]}))
+        window.location.hash = '#dummy'
+        this.timeout(1000)
+        setTimeout(() => {
+            assert.isTrue(beforeFetch.called)
+            assert.isTrue(afterFetch.called)
+            expect(window.document.querySelector('.test').textContent).equal('After Fetch' )
             done()
         }, 300)
     })
