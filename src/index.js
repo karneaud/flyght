@@ -21,46 +21,42 @@ const Flyght = class {
         let $links = this.$.querySelectorAll('a[data-flyght]')
 		if($links) $links.forEach(($el,key,$parent) => {
             $el.addEventListener('click', this.linkClickListener, false)
-            this.#config.urlConfiguration.push({ hash: $el.hash || $el.name || $el.href, url: $el.href, type: 'GET' })
+            this.#config.urlConfiguration.push({ hash: $el.hash || (`#${$el.name || $el.href}`), url: $el.href, type: 'GET' })
         })
     }
 
     linkClickListener(e) {
         e.stopPropagation()
         e.preventDefault()
-        window.location.hash = e.target.hash || e.target.name || e.target.href
+        window.location.hash = e.target.hash || `#${e.target.name}` || `#${e.target.href}`
     }
 
     get config() {
         return this.#config
     }
 
-    async #fetchFetch(url, opts) {
-        let response = null
-        try {
-            response = await fetch(url, Object.assign({},{ method: 'GET', headers: {
-                'Content-Type':'text/html',
-                'Accept':'text/html'
-            } }, opts))
+    async #fetchFetch(url, opts, callback ) {
+        let response = await fetch(url, Object.assign({},{ method: 'GET', headers: {
+            'Content-Type':'text/html',
+            'Accept':'text/html'
+        } }, opts))
 
-        } catch(e) {
-            throw e
-        }
-        return response
+        response = await (callback? callback(response) : response.text())
+        if(!response) throw 'No text value returned'
+        
+        this.#updateContent(response)
     }
 
     hashListener() {
         try {
-            let page = this.#config.urlConfiguration.filter((page) => page.hash == window.location.hash || page.url == window.location.href),
-            { beforeFetch } = page
+            let page = this.#config.urlConfiguration.filter((page) => page.hash == window.location.hash || page.url == window.location.href)
+            if(page.length < 1) return false
+            
+            let { url, beforeFetch } = page.shift()
             if(!url || (typeof beforeFetch === 'function' && !(page = beforeFetch(page))) ) return false
             
-            let { url, hash, method, options, afterFetch } = page,
-            response  = this.#fetchFetch(url, { method, ...options })
-            response = (typeof afterFetch === 'function') ? afterFetch(response) : response.text()
-            if(!response) throw 'No text value returned'
-
-            this.#updateContent(response)
+            let { method, options, afterFetch } = page
+            this.#fetchFetch(url, { method, ...options }, afterFetch || false )
         } catch(e) {
             if(this.#config.errorHandler) this.#config.errorHandler(e)
             else this.#errorHandler(e)
