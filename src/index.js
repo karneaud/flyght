@@ -40,7 +40,6 @@ const Flyght = class {
             'Content-Type':'text/html',
             'Accept':'text/html'
         } }, opts))
-
         response = await (callback? callback(response) : response.text())
         if(!response) throw 'No text value returned'
         
@@ -52,8 +51,9 @@ const Flyght = class {
             let page = this.#config.urlConfiguration.filter((page) => page.hash == window.location.hash || page.url == window.location.href)
             if(page.length < 1) return false
             
-            let { url, beforeFetch } = page.shift()
-            if(!url || (typeof beforeFetch === 'function' && !(page = beforeFetch(page))) ) return false
+            let { url, beforeFetch } = page = page.shift()
+            if(!url) throw "No URL provided!"
+            else if((typeof beforeFetch === 'function') && (!(page = beforeFetch(page))) ) return false
             
             let { method, options, afterFetch } = page
             this.#fetchFetch(url, { method, ...options }, afterFetch || false )
