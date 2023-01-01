@@ -3,12 +3,12 @@ import { expect, assert, should } from 'chai'
 import sinon from 'sinon'
 import { JSDOM } from 'jsdom'
 import Flyght from './src/index.js'
-const defaultConfig = { foo: "bar", hasPageList: [], idElement: "flyghtContent", urlConfiguration: null },
+const defaultConfig = { foo: "bar", idElement: "flyghtContent", urlConfiguration: null },
     doc = new JSDOM('<html><body><div id="flyghtContent"></div><a href="/test.html" name="test" data-flyght></a><a href="/test2.html" name="test2" data-flyght></a></body></html>')
 global.window = doc.window
 global.document = doc.window.document
 global.location = doc.window.location
-
+global.fetch = global.window.fetch = (url,options) => {}
 should()
         
 describe('Flyght class tests',() => {
@@ -38,20 +38,21 @@ describe("flyght methods and properties",()=>{
     })
 })
 
-describe('Test Flyght functions', ()=>{
-    let spy = null
-    before(()=> {
-        spy = sinon.spy(Flyght.prototype,'hashListener')
+describe('Test Flyght content', ()=> {
+    before(() =>{
+        fetch = () => 
+            Promise.resolve(
+                { text: () => Promise.resolve('<div class="test">Test</div>') }
+            )
         let flyght = new Flyght(defaultConfig)
-        window.onload()
-        window.location.hash = '#hash'
         window.document.querySelector('a[data-flyght]').click()
     })
 
-    after(()=> sinon.restore())
-
-    it('should fire hashListener method', () => {
-        expect(spy.callCount).equal(3)
-        expect(window.location.hash).equal('#test')
+    it('should load content', function(done){
+        this.timeout(1000)
+        setTimeout(() => {
+            expect(window.document.querySelector('.test').textContent).equal('Test' )
+            done()
+        }, 300)
     })
 })
