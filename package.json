@@ -2,12 +2,26 @@
   "name": "flyght",
   "version": "1.0.3",
   "description": "Flyght is the vanilla JS Single Page Application Library",
-  "source": "./src/index.js",
-  "main": "./dist/flyght.js",
+  "main": "./src/index.js",
+  "targets": {
+    "web": {
+      "source": "./src/index.js",
+      "context": "browser",
+      "distDir": "./dist",
+      "isLibrary": false,
+      "scopeHoist": true,
+      "outputFormat": "global"
+    },
+    "main": false
+  },
+  "parcel-namer-custom": {
+    "index.js$": "flyght.js"
+  },
   "scripts": {
     "watch": "parcel watch",
     "build": "parcel build",
-    "test": "mocha --config .mocharc.js test.js"
+    "serve": "parcel serve --dist-dir=./public ./index.html",
+    "test": "BABEL_ENV=test mocha --config .mocharc.js -r @babel/register test.js"
   },
   "repository": {
     "type": "git",
@@ -18,15 +32,21 @@
     "singlepageapplication",
     "spa"
   ],
+  "browserslist": "> 1%, not dead",
   "devDependencies": {
+    "@babel/cli": "^7.20.7",
     "@babel/core": "*",
     "@babel/plugin-transform-runtime": "*",
     "@babel/preset-env": "*",
     "@babel/register": "^7.18.9",
+    "@babel/runtime": "^7.20.7",
+    "@parcel/babel-preset-env": "^2.8.2",
     "chai": "*",
     "jsdom": "^20.0.3",
     "mocha": "*",
     "parcel": "*",
+    "parcel-namer-custom": "^0.2.0",
+    "parcel-namer-rewrite": "^2.0.0-rc.3",
     "sinon": "^15.0.1"
   },
   "author": "Ajith Krish <mailingtoajith@gmail.com>",

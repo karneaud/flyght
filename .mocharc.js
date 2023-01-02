@@ -1,7 +1,8 @@
 module.exports = {
     require: [
-        '@babel/register',
-        'regenerator-runtime/runtime',
+        '@babel/preset-env',
+        '@babel/register'
     ],
+    ui:"bdd",
     recursive: true
 };
