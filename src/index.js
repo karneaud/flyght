@@ -1,4 +1,4 @@
-const Flyght = class {
+export default Flyght = class {
     #config = {}
     #defaultConfig = {}
     #element = null
@@ -16,13 +16,19 @@ const Flyght = class {
 
     register(){
         this.$ = window.document
-        this.#element = this.$.getElementById(this.#config.idElement)
+        this.#element = this.#config.idElement ? this.$.getElementById(this.#config.idElement) : this.getContentElement()
         this.#config.urlConfiguration = this.#config.urlConfiguration ?? [] 
-        let $links = this.$.querySelectorAll('a[data-flyght]')
+        let $links = this.$.querySelectorAll('a[data-flyght-link]')
 		if($links) $links.forEach(($el,key,$parent) => {
             $el.addEventListener('click', this.linkClickListener, false)
             this.#config.urlConfiguration.push({ hash: $el.hash || (`#${$el.name || $el.href}`), url: $el.href, type: 'GET' })
         })
+    }
+
+    getContentElement(){
+        let $el = document.querySelector('*[data-flyght-content]') ?? document.body
+        this.#config.idElement = $el.id || ( $el.id = `flyghtContent${Math.random()*1000}`)
+        return $el
     }
 
     linkClickListener(e) {
@@ -71,5 +77,3 @@ const Flyght = class {
         this.#element.innerHTML = content
     }
 }
-
-export default Flyght
