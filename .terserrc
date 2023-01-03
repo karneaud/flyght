@@ -1,1 +1,1 @@
-{ "keep_classnames": true, "ecma":2015 }
+{  "ecma":2015, "mangle": false, "keep_classnames":true, "keep_fnames": true }
