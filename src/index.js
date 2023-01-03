@@ -1,4 +1,4 @@
-export default Flyght = class {
+const Flyght = class {
     #config = {}
     #defaultConfig = {}
     #element = null
@@ -49,7 +49,7 @@ export default Flyght = class {
         response = await (callback? callback(response) : response.text())
         if(!response) throw 'No text value returned'
         
-        this.#updateContent(response)
+        this.updateContent(response)
     }
 
     hashListener() {
@@ -61,19 +61,20 @@ export default Flyght = class {
             if(!url) throw "No URL provided!"
             else if((typeof beforeFetch === 'function') && (!(page = beforeFetch(page))) ) return false
             
-            let { method, options, afterFetch } = page
-            this.#fetchFetch(url, { method, ...options }, afterFetch || false )
+            let { type, options, afterFetch } = page
+            this.#fetchFetch(url, { method: type, ...options }, afterFetch || false )
         } catch(e) {
-            if(this.#config.errorHandler) this.#config.errorHandler(e)
-            else this.#errorHandler(e)
+            this.errorHandler(e)
         }
     }
 
-    #errorHandler(e) {
+    errorHandler(e) {
         console.error(e)
     }
 
-    #updateContent(content) {
+    updateContent(content) {
         this.#element.innerHTML = content
     }
 }
+
+export default global.Flyght = Flyght
