@@ -9,7 +9,7 @@
       "context": "browser",
       "distDir": "./dist",
       "isLibrary": false,
-      "scopeHoist": true,
+      "scopeHoist": false,
       "outputFormat": "global"
     },
     "main": false
