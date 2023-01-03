@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import { JSDOM } from 'jsdom'
 import Flyght from './src/index.js'
 const defaultConfig = { foo: "bar", idElement: "flyghtContent", urlConfiguration: null },
-    doc = new JSDOM('<html><body><div id="flyghtContent"></div><a href="/test.html" name="test" data-flyght></a><a href="/test2.html" name="test2" data-flyght></a></body></html>')
+    doc = new JSDOM('<html><body><div id="flyghtContent"></div><a href="/test.html" name="test" data-flyght-link></a><a href="/test2.html" name="test2" data-flyght-link></a></body></html>')
 global.window = doc.window
 global.document = doc.window.document
 global.location = doc.window.location
@@ -18,7 +18,7 @@ describe('Flyght class tests',() => {
     })
 
     it('should instantiate class',() =>{
-        expect(new Flyght({})).instanceOf(Flyght)
+        expect(new Flyght({idElement:"flyghtContent"})).instanceOf(Flyght)
     })
 })
 
@@ -47,7 +47,7 @@ describe('Test Flyght content', ()=> {
 
     it('should load content', function(done){
         let flyght = new Flyght(defaultConfig)
-        window.document.querySelector('a[data-flyght]').click()
+        window.document.querySelector('a[data-flyght-link]').click()
         this.timeout(1000)
         setTimeout(() => {
             expect(window.document.querySelector('.test').textContent).equal('Test' )
@@ -56,8 +56,8 @@ describe('Test Flyght content', ()=> {
     })
 
     it('should call hooks',function(done){
-        let afterFetch = sinon.fake.resolves('<div class="test">After Fetch</div>'), 
-            beforeFetch = sinon.fake((page) => Object.assign({}, page,{ method: "PATCH" }) ), 
+        let afterFetch = sinon.fake.resolves('<div class="test2">After Fetch</div>'), 
+            beforeFetch = sinon.fake((page) => Object.assign({}, page,{ type: "PATCH", options: { cors: "foo" } } ) ), 
             flyght = new Flyght(Object.assign({}, defaultConfig,{ urlConfiguration:[
                 {
                     beforeFetch,
@@ -71,7 +71,8 @@ describe('Test Flyght content', ()=> {
         setTimeout(() => {
             assert.isTrue(beforeFetch.called)
             assert.isTrue(afterFetch.called)
-            expect(window.document.querySelector('.test').textContent).equal('After Fetch' )
+            
+            expect(window.document.querySelector('#flyghtContent').textContent).equal('After Fetch' )
             done()
         }, 300)
     })
