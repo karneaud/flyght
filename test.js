@@ -3,7 +3,7 @@ import { expect, assert, should } from 'chai'
 import sinon from 'sinon'
 import { JSDOM } from 'jsdom'
 import Flyght from './src/index.js'
-const defaultConfig = { foo: "bar", idElement: "flyghtContent", urlConfiguration: null },
+const defaultConfig = { foo: "bar", idElement: "#flyghtContent" },
     doc = new JSDOM('<html><body><div id="flyghtContent"></div><a href="/test.html" name="test" data-flyght-link></a><a href="/test2.html" name="test2" data-flyght-link></a></body></html>')
 global.window = doc.window
 global.document = doc.window.document
@@ -18,7 +18,7 @@ describe('Flyght class tests',() => {
     })
 
     it('should instantiate class',() =>{
-        expect(new Flyght({idElement:"flyghtContent"})).instanceOf(Flyght)
+        expect(new Flyght({idElement:"#flyghtContent"})).instanceOf(Flyght)
     })
 })
 
@@ -32,8 +32,8 @@ describe("flyght methods and properties",()=>{
 
     it('should have methods', () =>{
         let flyght = new Flyght(defaultConfig)
-        assert.property(flyght,'init')
-        assert.property(flyght,'register')
+        assert.property(flyght,'errorHandler')
+        assert.property(flyght.config,'beforeUpdateContent')
         expect(flyght).to.not.have.property('fetchFetch')
     })
 })
@@ -57,6 +57,7 @@ describe('Test Flyght content', ()=> {
 
     it('should call hooks',function(done){
         let afterFetch = sinon.fake.resolves('<div class="test2">After Fetch</div>'), 
+            afterUpdateContent = sinon.fake(),
             beforeFetch = sinon.fake((page) => Object.assign({}, page,{ type: "PATCH", options: { cors: "foo" } } ) ), 
             flyght = new Flyght(Object.assign({}, defaultConfig,{ urlConfiguration:[
                 {
@@ -65,13 +66,13 @@ describe('Test Flyght content', ()=> {
                     url: "/dummy.html",
                     hash: "#dummy"
                 }
-        ]}))
+        ], afterUpdateContent}))
         window.location.hash = '#dummy'
         this.timeout(1000)
         setTimeout(() => {
             assert.isTrue(beforeFetch.called)
             assert.isTrue(afterFetch.called)
-            
+            assert.isTrue(afterUpdateContent.called)
             expect(window.document.querySelector('#flyghtContent').textContent).equal('After Fetch' )
             done()
         }, 300)
