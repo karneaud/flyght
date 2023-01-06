@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import { JSDOM } from 'jsdom'
 import Flyght from './src/index.js'
 const defaultConfig = { foo: "bar", idElement: "#flyghtContent" },
-    doc = new JSDOM('<html><body><div id="flyghtContent"></div><a href="/test.html" name="test" data-flyght-link></a><a href="/test2.html" name="test2" data-flyght-link></a></body></html>')
+    doc = new JSDOM('<html><body><div id="flyghtContent" data-flyght-content></div><a href="/test.html" name="test" data-flyght-link></a><a href="/test2.html" name="test2" data-flyght-link></a></body></html>')
 global.window = doc.window
 global.document = doc.window.document
 global.location = doc.window.location
@@ -18,7 +18,7 @@ describe('Flyght class tests',() => {
     })
 
     it('should instantiate class',() =>{
-        expect(new Flyght({idElement:"#flyghtContent"})).instanceOf(Flyght)
+        expect(new Flyght()).instanceOf(Flyght)
     })
 })
 
