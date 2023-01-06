@@ -5,7 +5,7 @@
   "main": "./src/index.js",
   "targets": {
     "web": {
-      "source": "./src/index.js",
+      "source": "./web.js",
       "context": "browser",
       "distDir": "./dist",
       "isLibrary": false,
@@ -15,7 +15,7 @@
     "main": false
   },
   "parcel-namer-custom": {
-    "index.js$": "flyght.js"
+    "web.js$": "flyght.js"
   },
   "scripts": {
     "watch": "parcel watch",
