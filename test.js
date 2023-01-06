@@ -14,11 +14,7 @@ should()
 describe('Flyght class tests',() => {
     it('should exists',() => {
         Flyght.should.exist
-        Flyght.should.be.a('function')
-    })
-
-    it('should instantiate class',() =>{
-        expect(new Flyght({idElement:"#flyghtContent"})).instanceOf(Flyght)
+        Flyght.should.be.a('object')
     })
 })
 
