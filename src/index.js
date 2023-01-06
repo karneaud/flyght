@@ -1,32 +1,47 @@
 const Flyght = class {
     #config = {}
-    #defaultConfig = {}
+    #defaultConfig = {
+        idElement: null,
+        urlConfiguration: [],
+        beforeUpdateContent(content) {
+            return content
+        },
+        afterUpdateContent : null
+    }
     #element = null
     constructor(config) {
-        this.init(config)
-        this.register()
+        this.#init(config)
+        this.#register()
     }
 
-    init(config) {
-        this.#config = Object.assign({},this.#defaultConfig,config)
-        let func = this.hashListener.bind(this)
-        window.addEventListener('hashchange',func, false)
-		window.onload = func
+    #init(config) {
+        let func = this.#hashListener.bind(this)
+        
+        try {
+            this.#config = Object.assign({},this.#defaultConfig,config)
+            this.$ = window.document
+            this.#element = this.#config.idElement ? this.$.querySelector(this.#config.idElement) : this.#getContentElement()
+            window.addEventListener('hashchange',func, false)
+            window.onload = func
+        } catch (e) {
+            this.errorHandler(e)
+        }
     }
 
-    register(){
-        this.$ = window.document
-        this.#element = this.#config.idElement ? this.$.getElementById(this.#config.idElement) : this.getContentElement()
-        this.#config.urlConfiguration = this.#config.urlConfiguration ?? [] 
-        let $links = this.$.querySelectorAll('a[data-flyght-link]')
-		if($links) $links.forEach(($el,key,$parent) => {
-            $el.addEventListener('click', this.linkClickListener, false)
-            this.#config.urlConfiguration.push({ hash: $el.hash || (`#${$el.name || $el.href}`), url: $el.href, type: 'GET' })
-        })
+    #register(){
+        try {
+            let $links = this.$.querySelectorAll('a[data-flyght-link]')
+            if($links) $links.forEach(($el,key,$parent) => {
+                $el.addEventListener('click', this.linkClickListener, false)
+                this.#config.urlConfiguration.push({ hash: $el.hash || (`#${$el.name || $el.href}`), url: $el.href, type: 'GET' })
+            })
+        } catch (e) {
+            this.errorHandler(e)
+        }
     }
 
-    getContentElement(){
-        let $el = document.querySelector('*[data-flyght-content]') ?? document.body
+    #getContentElement(){
+        let $el = this.$.querySelector('*[data-flyght-content]') ?? document.body
         this.#config.idElement = $el.id || ( $el.id = `flyghtContent${Math.random()*1000}`)
         return $el
     }
@@ -41,20 +56,24 @@ const Flyght = class {
         return this.#config
     }
 
+    get element() {
+        return this.#element
+    }
+
     async #fetchFetch(url, opts, callback ) {
         let response = await fetch(url, Object.assign({},{ method: 'GET', headers: {
             'Content-Type':'text/html',
             'Accept':'text/html'
         } }, opts))
         response = await (callback? callback(response) : response.text())
-        if(!response) throw 'No text value returned'
+        if(!response) throw 'No response value returned'
         
-        this.updateContent(response)
+        this.#updateContent(response)
     }
 
-    hashListener() {
+    #hashListener() {
         try {
-            let page = this.#config.urlConfiguration.filter((page) => page.hash == window.location.hash || page.url == window.location.href)
+            let page = this.config.urlConfiguration.filter((page) => page.hash == window.location.hash || page.url == window.location.href)
             if(page.length < 1) return false
             
             let { url, beforeFetch } = page = page.shift()
@@ -72,9 +91,15 @@ const Flyght = class {
         console.error(e)
     }
 
-    updateContent(content) {
-        this.#element.innerHTML = content
+    #updateContent(content) {
+        try {
+            let { beforeUpdateContent, afterUpdateContent } = this.config
+            if((typeof beforeUpdateContent == 'function') && !(content = beforeUpdateContent(content))) return false
+                
+            this.element.innerHTML = content
+            if(typeof afterUpdateContent == 'function') afterUpdateContent(this.element)
+        } catch(e) {this.errorHandler(e)}
     }
 }
 
-export default global.Flyght = Flyght
+export default Flyght
