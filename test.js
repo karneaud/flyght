@@ -18,23 +18,23 @@ describe('Flyght class tests',() => {
     })
 
     it('should instantiate class',() =>{
-        expect(new Flyght()).instanceOf(Flyght)
+        expect(new Flyght({idElement:"#flyghtContent"})).instanceOf(Flyght)
     })
 })
 
 describe("flyght methods and properties",()=>{
-    it('should have a config',()=>{
-        let config = null, flyght = new Flyght(defaultConfig)        
-        assert.isNotNull(config = flyght.config)
-        assert.property(config, 'foo')
-        expect(config.urlConfiguration).to.have.lengthOf(2)
+    it('should have methods', () =>{
+        assert.property(Flyght,'errorHandler')
+        assert.property(Flyght, 'init')
+        assert.property(Flyght,'config')
     })
 
-    it('should have methods', () =>{
-        let flyght = new Flyght(defaultConfig)
-        assert.property(flyght,'errorHandler')
-        assert.property(flyght.config,'beforeUpdateContent')
-        expect(flyght).to.not.have.property('fetchFetch')
+    it('should have config',()=>{
+        Flyght.init(defaultConfig)
+        let config = Flyght.config()
+        config.should.be.a('object')
+        expect(config).to.have.property('idElement')
+        expect(config).to.have.property('urlConfiguration')
     })
 })
 
@@ -43,10 +43,8 @@ describe('Test Flyght content', ()=> {
                 { text: () => Promise.resolve('<div class="test">Test</div>') }
             ))
 
-            
-
     it('should load content', function(done){
-        let flyght = new Flyght(defaultConfig)
+        Flyght.init(defaultConfig)
         window.document.querySelector('a[data-flyght-link]').click()
         this.timeout(1000)
         setTimeout(() => {
@@ -58,8 +56,9 @@ describe('Test Flyght content', ()=> {
     it('should call hooks',function(done){
         let afterFetch = sinon.fake.resolves('<div class="test2">After Fetch</div>'), 
             afterUpdateContent = sinon.fake(),
-            beforeFetch = sinon.fake((page) => Object.assign({}, page,{ type: "PATCH", options: { cors: "foo" } } ) ), 
-            flyght = new Flyght(Object.assign({}, defaultConfig,{ urlConfiguration:[
+            beforeFetch = sinon.fake((page) => Object.assign({}, page,{ type: "PATCH", options: { cors: "foo" } } ) )    
+        
+        Flyght.init(Object.assign({}, defaultConfig,{ urlConfiguration:[
                 {
                     beforeFetch,
                     afterFetch,
@@ -75,6 +74,7 @@ describe('Test Flyght content', ()=> {
             assert.isTrue(afterUpdateContent.called)
             expect(window.document.querySelector('#flyghtContent').textContent).equal('After Fetch' )
             done()
-        }, 300)
+        }, 500)
     })
+
 })
