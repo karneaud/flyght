@@ -1,6 +1,6 @@
 {
   "name": "flyght",
-  "version": "1.0.3",
+  "version": "2.0.0-beta",
   "description": "Flyght is the vanilla JS Single Page Application Library",
   "main": "./src/index.js",
   "targets": {
@@ -17,6 +17,13 @@
   "parcel-namer-custom": {
     "web.js$": "flyght.js"
   },
+  "contributors":[
+    {
+      "name":"Kendall Arneaud",
+      "email": "kendall.arneaud@gmail.com",
+      "url":"https://kendallarneaud.me"
+    }
+  ],
   "scripts": {
     "watch": "parcel watch",
     "build": "parcel build",
