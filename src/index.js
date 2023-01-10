@@ -57,7 +57,7 @@ init = (cfg) => {
     try {
         config = Object.assign({},defaultConfig,cfg)
         $context = window.document
-        element = config.idElement ? $context.querySelector(config.idElement) : getContentElement()
+        element = config.idElement ? $context.getElementById(config.idElement) : getContentElement()
         window.addEventListener('hashchange',hashListener, false)
         let onload = window.onload 
         window.onload = (e) => { hashListener(e); onload(e) }
