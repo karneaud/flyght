@@ -14,6 +14,7 @@ register = ()=> {
             $el.addEventListener('click', linkClickListener, false)
             config.urlConfiguration.push({ hash: $el.hash || (`#${$el.name || $el.href}`), url: $el.href, type: 'GET' })
         })
+        plugins.forEach((plugin) => (config = plugin(config)))
     } catch (e) {
         errorHandler(e)
     }
@@ -70,6 +71,8 @@ init = (cfg) => {
     } catch(e) { 
         errorHandler(e)
     }
+}, registerPlugin = (plugin) => {
+    plugins.push((cfg) => plugin(cfg))
 }
 
 function linkClickListener(e) {
@@ -82,7 +85,7 @@ function errorHandler(e) {
     console.error(e)
 }
 
-let config = {}, element = null, $context = null
+let config = {}, element = null, $context = null, plugins = []
 
 export default {
     init,
@@ -93,5 +96,6 @@ export default {
         return element
     },
     linkClickListener, 
-    errorHandler
+    errorHandler,
+    registerPlugin
 }
