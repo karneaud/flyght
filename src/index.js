@@ -9,12 +9,16 @@ defaultConfig = {
 },
 register = ()=> {
     try {
-        let $links = $context.querySelectorAll('a[data-flyght-link]')
+        plugins.forEach((plugin) => (config = plugin(config)))
+        
+        const $links = $context.querySelectorAll('a[data-flyght-link]'), { onClickListener, onErrorHandler : errorHandler = defaultErrorHandler } = config, linkClickListener = onClickListener? ((e) => {
+            onClickListener(e)
+            defaultLinkClickListener(e) 
+        }) : defaultLinkClickListener
         if($links) $links.forEach(($el,key,$parent) => {
             $el.addEventListener('click', linkClickListener, false)
             config.urlConfiguration.push({ hash: $el.hash || (`#${$el.name || $el.href}`), url: $el.href, type: 'GET' })
         })
-        plugins.forEach((plugin) => (config = plugin(config)))
     } catch (e) {
         errorHandler(e)
     }
@@ -73,19 +77,15 @@ init = (cfg) => {
     }
 }, registerPlugin = (plugin) => {
     plugins.push((cfg) => plugin(cfg))
-}
-
-function linkClickListener(e) {
+}, defaultLinkClickListener = (e) => {
     e.stopPropagation()
     e.preventDefault()
     window.location.hash = e.target.hash || `#${e.target.name}` || `#${e.target.href}`
-}
-
-function errorHandler(e) {
+}, defaultErrorHandler = (e) => {
     console.error(e)
 }
 
-let config = {}, element = null, $context = null, plugins = []
+let config = {}, element = null, $context = null, plugins = [], errorHandler
 
 export default {
     init,
@@ -95,7 +95,5 @@ export default {
     element: () => {
         return element
     },
-    linkClickListener, 
-    errorHandler,
     registerPlugin
 }
