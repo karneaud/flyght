@@ -9,7 +9,12 @@ defaultConfig = {
 },
 register = ()=> {
     try {
-        let $links = $context.querySelectorAll('a[data-flyght-link]')
+        plugins.forEach((plugin) => (config = plugin(config)))
+        
+        const $links = $context.querySelectorAll('a[data-flyght-link]'), { onClickListener, onErrorHandler : errorHandler = defaultErrorHandler } = config, linkClickListener = onClickListener? ((e) => {
+            onClickListener(e)
+            defaultLinkClickListener(e) 
+        }) : defaultLinkClickListener
         if($links) $links.forEach(($el,key,$parent) => {
             $el.addEventListener('click', linkClickListener, false)
             config.urlConfiguration.push({ hash: $el.hash || (`#${$el.name || $el.href}`), url: $el.href, type: 'GET' })
@@ -52,7 +57,7 @@ init = (cfg) => {
     try {
         config = Object.assign({},defaultConfig,cfg)
         $context = window.document
-        element = config.idElement ? $context.querySelector(config.idElement) : getContentElement()
+        element = config.idElement ? $context.getElementById(config.idElement) : getContentElement()
         window.addEventListener('hashchange',hashListener, false)
         let onload = window.onload 
         window.onload = (e) => { hashListener(e); onload(e) }
@@ -70,19 +75,17 @@ init = (cfg) => {
     } catch(e) { 
         errorHandler(e)
     }
-}
-
-function linkClickListener(e) {
+}, registerPlugin = (plugin) => {
+    plugins.push((cfg) => plugin(cfg))
+}, defaultLinkClickListener = (e) => {
     e.stopPropagation()
     e.preventDefault()
     window.location.hash = e.target.hash || `#${e.target.name}` || `#${e.target.href}`
-}
-
-function errorHandler(e) {
+}, defaultErrorHandler = (e) => {
     console.error(e)
 }
 
-let config = {}, element = null, $context = null
+let config = {}, element = null, $context = null, plugins = [], errorHandler
 
 export default {
     init,
@@ -92,6 +95,5 @@ export default {
     element: () => {
         return element
     },
-    linkClickListener, 
-    errorHandler
+    registerPlugin
 }

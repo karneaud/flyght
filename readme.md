@@ -15,6 +15,11 @@ Note : Single Page Application might affect SEO, choose appropriate case to use
 ```
 <script type="text/javascript" src="https://unpkg.com/flyght"></script>
 ```
+or via **ES6 module**
+
+```
+import Flyght from 'flyght'
+```
 
 ## Configuration
 
@@ -46,7 +51,7 @@ Yes, Simple yet powerful!
 
 ### Configuration Parameters
 
-1. idElement : Is the CSS Selector of the DOM Element, where the loaded page is rendered
+1. idElement : Is the id of the DOM Element, where the loaded page is rendered
 2. urlConfiguration : Is the Array of Object that has, url, hash, and request type
       1. hash : Required *hash* we provided
       2. url : Required given *URL* will be called and response will be attached to the idElement content
@@ -56,6 +61,8 @@ Yes, Simple yet powerful!
       5. afterFetch : Optional function that takes **response promise** from **Fetch** and **MUST return** a **Promise** or **false**. If the returned value is false then the process exits.
 3. beforeUpdateContent : Optional function that takes *raw response* content and **MUST return** the **content text/html** or **false**. If returned value is false then the process exits.
 4. afterUpdateContent : Optional function that takes container *element* where loaded page is rendered for further processing
+5. onClickHandler : Optional custom 'click event' listener handler for `*[data-flyght-link]`
+6. onErrorHandler : Optional custom error handler for handling errors.
 
 ## Change Log
 
