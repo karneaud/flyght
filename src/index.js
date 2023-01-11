@@ -59,8 +59,8 @@ init = (cfg) => {
         $context = window.document
         element = config.idElement ? $context.getElementById(config.idElement) : getContentElement()
         window.addEventListener('hashchange',hashListener, false)
-        let onload = window.onload 
-        window.onload = (e) => { hashListener(e); onload(e) }
+        let { onload } = window 
+        window.onload = onload? (e) => { hashListener(e); onload(e) } : hashListener
     } catch (e) {
         errorHandler(e)
     }
