@@ -20,7 +20,7 @@ register = ()=> {
             config.urlConfiguration.push({ hash: $el.hash || (`#${$el.name || $el.href}`), url: $el.href, type: 'GET' })
         })
     } catch (e) {
-        errorHandler(e)
+        console.error(e)
     }
 },
 getContentElement = () => {
