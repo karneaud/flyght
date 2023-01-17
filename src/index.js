@@ -56,7 +56,8 @@ fetchFetch = async (url, opts, callback) => {
 },
 init = (cfg) => {
     try {
-        config = Object.assign({},defaultConfig,cfg)
+        Object.keys(defaultConfig).forEach((key) => defaultConfig[key] = cfg[key])
+        config = Object.assign({}, defaultConfig)
         $context = window.document
         element = config.idElement ? $context.getElementById(config.idElement) : getContentElement()
         window.addEventListener('hashchange',hashListener, false)
