@@ -20,7 +20,7 @@ register = ()=> {
             config.urlConfiguration.push({ hash: $el.hash || (`#${$el.name || $el.href}`), url: $el.href, type: 'GET' })
         })
     } catch (e) {
-        console.error(e)
+        errorHandler(e)
     }
 },
 getContentElement = () => {
@@ -85,7 +85,7 @@ init = (cfg) => {
     console.error(e)
 }
 
-let config = {}, element = null, $context = null, plugins = [], errorHandler
+let config = {}, element = null, $context = null, plugins = [], errorHandler = defaultErrorHandler
 
 export default {
     init,
