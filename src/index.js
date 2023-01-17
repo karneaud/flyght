@@ -11,10 +11,11 @@ register = ()=> {
     try {
         plugins.forEach((plugin) => (config = plugin(config)))
         
-        const $links = $context.querySelectorAll('a[data-flyght-link]'), { onClickListener, onErrorHandler : errorHandler = defaultErrorHandler } = config, linkClickListener = onClickListener? ((e) => {
+        const $links = $context.querySelectorAll('a[data-flyght-link]'), { onClickListener, onErrorHandler = defaultErrorHandler } = config, linkClickListener = onClickListener? ((e) => {
             onClickListener(e)
             defaultLinkClickListener(e) 
         }) : defaultLinkClickListener
+        errorHandler = onErrorHandler
         if($links) $links.forEach(($el,key,$parent) => {
             $el.addEventListener('click', linkClickListener, false)
             config.urlConfiguration.push({ hash: $el.hash || (`#${$el.name || $el.href}`), url: $el.href, type: 'GET' })
